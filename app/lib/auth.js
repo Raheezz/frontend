@@ -1,8 +1,9 @@
+// lib/auth.js
 import api from "./api";
 
 // 🔹 Register a new student
 export const registerUser = (data) =>
-  api.post("auth/register/", data).then((res) => res.data);
+  api.post("accounts/register/", data).then((res) => res.data);
 
 // 🔹 Login -> returns tokens
 export const loginUser = (data) =>
