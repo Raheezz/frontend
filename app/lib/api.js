@@ -1,15 +1,18 @@
 // lib/api.js
 import axios from "axios";
 
-const API_ROOT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/";
+// Only root domain, no /api here
+const API_ROOT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
 const api = axios.create({
-  baseURL: `${API_ROOT}/api/`,
-  withCredentials: false, // we use localStorage tokens in dev; use cookies for production
+  baseURL: `${API_ROOT}/api/`, // this will add /api correctly
+  withCredentials: false,
 });
 
 // Attach access token
 api.interceptors.request.use((config) => {
-  const token = typeof window !== "undefined" && localStorage.getItem("accessToken");
+  const token =
+    typeof window !== "undefined" && localStorage.getItem("accessToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -23,18 +26,18 @@ api.interceptors.response.use(
       original._retry = true;
       const refresh = localStorage.getItem("refreshToken");
       if (!refresh) {
-        // no refresh -> logout (handled by app)
         return Promise.reject(error);
       }
       try {
-        const resp = await axios.post(`${API_ROOT}/api/auth/token/refresh/`, { refresh });
+        const resp = await axios.post(`${API_ROOT}/api/auth/token/refresh/`, {
+          refresh,
+        });
         const newAccess = resp.data.access;
         localStorage.setItem("accessToken", newAccess);
         api.defaults.headers.Authorization = `Bearer ${newAccess}`;
         original.headers.Authorization = `Bearer ${newAccess}`;
         return api(original);
       } catch (e) {
-        // refresh failed -> remove tokens
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         return Promise.reject(e);
