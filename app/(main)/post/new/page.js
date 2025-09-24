@@ -8,6 +8,8 @@ import { getMe } from "../../../lib/auth";
 export default function NewPostPage() {
   const router = useRouter();
   const [form, setForm] = useState({ title: "", content: "" });
+  const [image, setImage] = useState(null); // 🔹 image file
+  const [preview, setPreview] = useState(null); // 🔹 preview URL
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -30,11 +32,32 @@ export default function NewPostPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      await createPost(form);
+      let data;
+      if (image) {
+        // 🔹 Use FormData if image exists
+        data = new FormData();
+        data.append("title", form.title);
+        data.append("content", form.content);
+        data.append("image", image);
+      } else {
+        // 🔹 Fallback: JSON
+        data = { ...form };
+      }
+
+      await createPost(data);
       router.push("/feed"); // redirect back to feed
     } catch (err) {
       console.error("Error creating post:", err);
@@ -76,6 +99,7 @@ export default function NewPostPage() {
         <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
           ✍️ Create New Post
         </h1>
+
         <input
           name="title"
           placeholder="Title"
@@ -84,6 +108,7 @@ export default function NewPostPage() {
           className="w-full p-2 mb-3 rounded border bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
           required
         />
+
         <textarea
           name="content"
           placeholder="Write your post..."
@@ -93,6 +118,26 @@ export default function NewPostPage() {
           rows="5"
           required
         />
+
+        {/* 🔹 Image upload input */}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="w-full mb-3 text-sm text-gray-700 dark:text-gray-300"
+        />
+
+        {/* 🔹 Preview selected image */}
+        {preview && (
+          <div className="mb-3">
+            <img
+              src={preview}
+              alt="Preview"
+              className="max-h-40 rounded-lg border"
+            />
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={loading}

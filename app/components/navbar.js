@@ -7,19 +7,18 @@ export default function Navbar() {
   const [isApproved, setIsApproved] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("access");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       setIsLoggedIn(true);
 
-      // Also check if user is approved (saved in localStorage after login)
       const approved = localStorage.getItem("isApproved");
       setIsApproved(approved === "true");
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("access");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("isApproved");
     setIsLoggedIn(false);
     setIsApproved(false);

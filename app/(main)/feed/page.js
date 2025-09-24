@@ -41,7 +41,7 @@ export default function FeedPage() {
         📚 Campus Feed
       </h1>
 
-      {/* Show "Create Post" only if user is verified */}
+      {/* Only verified users can create */}
       {user?.is_verified && (
         <Link
           href="/post/new"
@@ -56,9 +56,10 @@ export default function FeedPage() {
       ) : (
         <div className="space-y-4">
           {posts.map((post) => (
-            <div
+            <Link
               key={post.id}
-              className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow"
+              href={`/post/${post.id}`}
+              className="block p-4 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition"
             >
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {post.title}
@@ -72,7 +73,7 @@ export default function FeedPage() {
                 <span>✍️ {post.author?.username || "Unknown"}</span>
                 <span>❤️ {post.likes_count || 0}</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

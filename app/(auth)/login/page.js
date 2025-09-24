@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser } from "../../lib/auth";
+import { loginUser, getMe } from "../../lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   // ✅ Redirect if already logged in
   useEffect(() => {
-    const token = localStorage.getItem("access");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       router.push("/feed");
     }
@@ -25,12 +25,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // 🔹 Step 1: Login
       const res = await loginUser({ username, password });
 
       // Save tokens in localStorage
-      localStorage.setItem("access", res.access);
-      localStorage.setItem("refresh", res.refresh);
+      localStorage.setItem("accessToken", res.access);
+      localStorage.setItem("refreshToken", res.refresh);
 
+      // 🔹 Step 2: Fetch profile (to check verification)
+      const profile = await getMe();
+      localStorage.setItem("isApproved", profile.is_verified ? "true" : "false");
+
+      // 🔹 Step 3: Redirect
       router.push("/feed");
     } catch (err) {
       if (err.response?.data?.detail) {

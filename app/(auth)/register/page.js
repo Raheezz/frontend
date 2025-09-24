@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { registerUser } from "../../lib/auth";
+import { registerUser, loginUser } from "../../lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function RegisterPage() {
 
   // ✅ Redirect if already logged in
   useEffect(() => {
-    const token = localStorage.getItem("access");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       router.push("/feed");
     }
@@ -34,13 +34,31 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      // Step 1: Register user
       await registerUser(form);
 
-      alert("✅ Registration successful! Please wait for admin approval.");
-      router.push("/login");
+      // Step 2: Auto-login with the same credentials
+      const res = await loginUser({
+        username: form.username,
+        password: form.password,
+      });
+
+      // Save tokens + approval status
+      localStorage.setItem("accessToken", res.access);
+      localStorage.setItem("refreshToken", res.refresh);
+      localStorage.setItem("isApproved", res.is_approved ? "true" : "false");
+
+      alert(
+        res.is_approved
+          ? "✅ Registration complete! You are approved and logged in."
+          : "✅ Registration successful! You are logged in, but must wait for admin approval to post."
+      );
+
+      // Redirect to feed
+      router.push("/feed");
     } catch (err) {
       if (err.response?.data) {
-        // Show first error message from backend
+        // Show the first error message from backend
         const firstError = Object.values(err.response.data)[0][0];
         setError(`❌ ${firstError}`);
       } else {
@@ -69,7 +87,8 @@ export default function RegisterPage() {
             placeholder="Username"
             value={form.username}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
+            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
+                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             required
           />
 
@@ -79,7 +98,8 @@ export default function RegisterPage() {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
+            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
+                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             required
           />
 
@@ -89,7 +109,8 @@ export default function RegisterPage() {
             placeholder="First Name"
             value={form.first_name}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
+            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
+                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           />
 
           <input
@@ -98,7 +119,8 @@ export default function RegisterPage() {
             placeholder="Last Name"
             value={form.last_name}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
+            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
+                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           />
 
           <input
@@ -107,7 +129,8 @@ export default function RegisterPage() {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
+            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
+                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             required
           />
 
