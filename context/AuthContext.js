@@ -7,7 +7,7 @@ import {
   logoutUser,
   refreshToken,
   isRefreshExpired,
-} from "@/lib/auth";
+} from "../lib/auth";
 
 const AuthContext = createContext();
 
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Keep localStorage in sync whenever user changes
+  // 🔹 Sync localStorage with user
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -30,34 +30,40 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // 🔹 Helper: Try refreshing token & re-fetch user
+  // 🔹 Logout helper
+  const logout = () => {
+    logoutUser(); // clears tokens from storage/api
+    setUser(null);
+  };
+
+  // 🔹 Try refreshing tokens + refetch user
   const tryRefresh = async () => {
     const refresh = localStorage.getItem("refreshToken");
     if (!refresh || isRefreshExpired()) {
-      return logout();
+      logout();
+      return;
     }
 
     try {
       await refreshToken({ refresh });
       const me = await getMe();
       setUser(me);
-    } catch {
+    } catch (err) {
+      console.error("Refresh failed:", err);
       logout();
     }
   };
 
-  // 🔹 On first load, get user OR try refresh
+  // 🔹 On first load, check auth
   useEffect(() => {
     const initAuth = async () => {
-      if (isRefreshExpired()) {
-        logout();
-        setLoading(false);
-        return;
-      }
-
       try {
-        const me = await getMe();
-        setUser(me);
+        if (isRefreshExpired()) {
+          logout();
+        } else {
+          const me = await getMe();
+          setUser(me);
+        }
       } catch {
         await tryRefresh();
       } finally {
@@ -77,26 +83,26 @@ export const AuthProvider = ({ children }) => {
 
   // 🔹 Login
   const login = async (credentials) => {
-    await loginUser(credentials);
+    const tokens = await loginUser(credentials);
+    localStorage.setItem("accessToken", tokens.access);
+    localStorage.setItem("refreshToken", tokens.refresh);
     const me = await getMe();
     setUser(me);
   };
 
   // 🔹 Register
   const register = async (data) => {
-    await registerUser(data);
+    const tokens = await registerUser(data);
+    localStorage.setItem("accessToken", tokens.access);
+    localStorage.setItem("refreshToken", tokens.refresh);
     const me = await getMe();
     setUser(me);
   };
 
-  // 🔹 Logout
-  const logout = () => {
-    logoutUser();
-    setUser(null);
-  };
-
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -6,7 +6,7 @@ export const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("isVerified");
-    localStorage.removeItem("user"); // also clear cached user
+    localStorage.removeItem("user"); // clear cached user
     window.location.href = "/login"; // ✅ always redirect to login
   }
 };
@@ -14,8 +14,13 @@ export const handleLogout = () => {
 // 🔹 Save tokens to localStorage
 const saveTokens = ({ access, refresh }) => {
   if (typeof window !== "undefined") {
-    if (access) localStorage.setItem("accessToken", access);
-    if (refresh) localStorage.setItem("refreshToken", refresh);
+    if (access) {
+      localStorage.setItem("accessToken", access);
+      api.defaults.headers.Authorization = `Bearer ${access}`; // ✅ auto-attach
+    }
+    if (refresh) {
+      localStorage.setItem("refreshToken", refresh);
+    }
   }
 };
 
@@ -65,12 +70,11 @@ export const loginUser = async (data) => {
 };
 
 // 🔹 Refresh access token
-export const refreshToken = async (data) => {
+export const refreshToken = async ({ refresh }) => {
   try {
-    const res = await api.post("auth/token/refresh/", data);
+    const res = await api.post("auth/token/refresh/", { refresh });
     if (res.data.access) {
-      localStorage.setItem("accessToken", res.data.access);
-      api.defaults.headers.Authorization = `Bearer ${res.data.access}`;
+      saveTokens({ access: res.data.access, refresh }); // ✅ keep both synced
     }
     return res.data;
   } catch (err) {
@@ -84,10 +88,7 @@ export const getMe = async () => {
   try {
     const res = await api.get("auth/me/");
     if (typeof window !== "undefined" && res.data?.is_verified !== undefined) {
-      localStorage.setItem(
-        "isVerified",
-        res.data.is_verified ? "true" : "false"
-      );
+      localStorage.setItem("isVerified", res.data.is_verified ? "true" : "false");
     }
     return res.data;
   } catch (err) {

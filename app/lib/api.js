@@ -1,5 +1,5 @@
 import axios from "axios";
-import { isRefreshExpired, handleLogout } from "./auth"; // ✅ reuse from auth.js
+import { isRefreshExpired, handleLogout } from "./auth"; // ✅ reuse helpers
 
 const API_ROOT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -8,7 +8,7 @@ const api = axios.create({
   withCredentials: false,
 });
 
-// 🔹 Request interceptor: attach token
+// 🔹 Request interceptor: attach latest accessToken
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("accessToken");
@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🔹 Response interceptor: refresh on 401
+// 🔹 Response interceptor: auto-refresh token on 401
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -32,24 +32,25 @@ api.interceptors.response.use(
         const refresh = localStorage.getItem("refreshToken");
 
         if (!refresh || isRefreshExpired()) {
-          handleLogout(); // ✅ unified logout
+          handleLogout(); // ✅ expired refresh → logout + redirect
           return Promise.reject(error);
         }
 
         try {
-          const resp = await api.post("auth/token/refresh/", { refresh });
+          const resp = await axios.post(`${API_ROOT}/api/auth/token/refresh/`, { refresh });
           const newAccess = resp.data.access;
 
           if (newAccess) {
             localStorage.setItem("accessToken", newAccess);
+
+            // ✅ Update headers globally + for the failed request
             api.defaults.headers.Authorization = `Bearer ${newAccess}`;
             original.headers.Authorization = `Bearer ${newAccess}`;
-          }
 
-          return api(original); // retry original request
+            return api(original); // retry original request
+          }
         } catch {
-          handleLogout(); // ✅ unified logout
-          return Promise.reject(error);
+          handleLogout(); // ✅ refresh failed → logout
         }
       }
     }
