@@ -1,29 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isApproved, setIsApproved] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      setIsLoggedIn(true);
-
-      const approved = localStorage.getItem("isApproved");
-      setIsApproved(approved === "true");
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("isApproved");
-    setIsLoggedIn(false);
-    setIsApproved(false);
-    window.location.href = "/login";
-  };
+  const { user, logout, loading } = useAuth();
 
   return (
     <nav className="bg-gray-900 text-white p-4 shadow-md">
@@ -36,19 +16,27 @@ export default function Navbar() {
         {/* Links */}
         <div className="flex space-x-6">
           <Link href="/feed">Feed</Link>
-          {isLoggedIn && <Link href="/profile">Profile</Link>}
-          {isLoggedIn && isApproved && (
+
+          {/* Show profile only if logged in */}
+          {user && <Link href="/profile">Profile</Link>}
+
+          {/* Only verified users can create posts */}
+          {user?.is_verified ? (
             <Link href="/post/new" className="font-semibold text-green-400">
               + Create Post
             </Link>
-          )}
+          ) : user ? (
+            <span className="text-sm text-yellow-400">
+              Pending Approval
+            </span>
+          ) : null}
         </div>
 
         {/* Auth Buttons */}
         <div>
-          {isLoggedIn ? (
+          {loading ? null : user ? (
             <button
-              onClick={handleLogout}
+              onClick={logout}
               className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
             >
               Logout

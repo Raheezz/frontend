@@ -2,42 +2,43 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser, getMe } from "../../lib/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, login } = useAuth();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // ✅ Redirect if already logged in
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
+    if (user) {
       router.push("/feed");
     }
-  }, [router]);
+  }, [user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
-      // 🔹 Step 1: Login
-      const res = await loginUser({ username, password });
+      await login({ username, password });
+      setSuccess("✅ Login successful!");
 
-      // Save tokens in localStorage
-      localStorage.setItem("accessToken", res.access);
-      localStorage.setItem("refreshToken", res.refresh);
+      if (!user?.is_verified) {
+        setSuccess("✅ Login successful! Your account is pending admin approval.");
+      }
 
-      // 🔹 Step 2: Fetch profile (to check verification)
-      const profile = await getMe();
-      localStorage.setItem("isApproved", profile.is_verified ? "true" : "false");
-
-      // 🔹 Step 3: Redirect
-      router.push("/feed");
+      // Redirect after short delay so message is visible
+      setTimeout(() => {
+        router.push("/feed");
+      }, 1500);
     } catch (err) {
       if (err.response?.data?.detail) {
         setError(`❌ ${err.response.data.detail}`);
@@ -58,6 +59,9 @@ export default function LoginPage() {
 
         {error && (
           <p className="mb-4 text-sm text-center text-red-500">{error}</p>
+        )}
+        {success && (
+          <p className="mb-4 text-sm text-center text-green-500">{success}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">

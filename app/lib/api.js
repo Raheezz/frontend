@@ -1,46 +1,56 @@
-// lib/api.js
 import axios from "axios";
+import { isRefreshExpired, handleLogout } from "./auth"; // ✅ reuse from auth.js
 
-// Only root domain, no /api here
 const API_ROOT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 const api = axios.create({
-  baseURL: `${API_ROOT}/api/`, // this will add /api correctly
+  baseURL: `${API_ROOT}/api/`,
   withCredentials: false,
 });
 
-// Attach access token
+// 🔹 Request interceptor: attach token
 api.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" && localStorage.getItem("access"); // ✅ fixed
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
   return config;
 });
 
-// Response interceptor: try refresh on 401
+// 🔹 Response interceptor: refresh on 401
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    if (error.response && error.response.status === 401 && !original._retry) {
+
+    if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-      const refresh = localStorage.getItem("refresh"); // ✅ fixed
-      if (!refresh) {
-        return Promise.reject(error);
-      }
-      try {
-        const resp = await axios.post(`${API_ROOT}/api/auth/token/refresh/`, {
-          refresh,
-        });
-        const newAccess = resp.data.access;
-        localStorage.setItem("access", newAccess); // ✅ fixed
-        api.defaults.headers.Authorization = `Bearer ${newAccess}`;
-        original.headers.Authorization = `Bearer ${newAccess}`;
-        return api(original);
-      } catch (e) {
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
-        return Promise.reject(e);
+
+      if (typeof window !== "undefined") {
+        const refresh = localStorage.getItem("refreshToken");
+
+        if (!refresh || isRefreshExpired()) {
+          handleLogout(); // ✅ unified logout
+          return Promise.reject(error);
+        }
+
+        try {
+          const resp = await api.post("auth/token/refresh/", { refresh });
+          const newAccess = resp.data.access;
+
+          if (newAccess) {
+            localStorage.setItem("accessToken", newAccess);
+            api.defaults.headers.Authorization = `Bearer ${newAccess}`;
+            original.headers.Authorization = `Bearer ${newAccess}`;
+          }
+
+          return api(original); // retry original request
+        } catch {
+          handleLogout(); // ✅ unified logout
+          return Promise.reject(error);
+        }
       }
     }
     return Promise.reject(error);

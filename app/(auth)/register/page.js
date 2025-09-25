@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { registerUser, loginUser } from "../../lib/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { user, register } = useAuth();
+
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -14,15 +16,15 @@ export default function RegisterPage() {
     password: "",
   });
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // ✅ Redirect if already logged in
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
+    if (user) {
       router.push("/feed");
     }
-  }, [router]);
+  }, [user, router]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -31,34 +33,18 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
-      // Step 1: Register user
-      await registerUser(form);
-
-      // Step 2: Auto-login with the same credentials
-      const res = await loginUser({
-        username: form.username,
-        password: form.password,
-      });
-
-      // Save tokens + approval status
-      localStorage.setItem("accessToken", res.access);
-      localStorage.setItem("refreshToken", res.refresh);
-      localStorage.setItem("isApproved", res.is_approved ? "true" : "false");
-
-      alert(
-        res.is_approved
-          ? "✅ Registration complete! You are approved and logged in."
-          : "✅ Registration successful! You are logged in, but must wait for admin approval to post."
-      );
-
-      // Redirect to feed
-      router.push("/feed");
+      await register(form);
+      setSuccess("✅ Registration successful! Please wait for admin approval.");
+      // redirect to login after short delay
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (err) {
       if (err.response?.data) {
-        // Show the first error message from backend
         const firstError = Object.values(err.response.data)[0][0];
         setError(`❌ ${firstError}`);
       } else {
@@ -78,6 +64,9 @@ export default function RegisterPage() {
 
         {error && (
           <p className="mb-4 text-sm text-center text-red-500">{error}</p>
+        )}
+        {success && (
+          <p className="mb-4 text-sm text-center text-green-500">{success}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">

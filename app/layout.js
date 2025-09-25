@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "./components/navbar"; // ✅ Capitalized for convention
+import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "@/context/AuthContext"; // ✅ import AuthProvider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,16 +26,18 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-gray-100 transition-colors duration-300`}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {/* Navbar stays on top */}
-          <Navbar />
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            {/* Navbar stays on top */}
+            <Navbar />
 
-          {/* Page content */}
-          <main className="container mx-auto px-4 py-6">{children}</main>
+            {/* Page content */}
+            <main className="container mx-auto px-4 py-6">{children}</main>
 
-          {/* Footer stays at bottom */}
-          <Footer />
-        </ThemeProvider>
+            {/* Footer stays at bottom */}
+            <Footer />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
