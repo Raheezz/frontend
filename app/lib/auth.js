@@ -1,13 +1,20 @@
+"use client";
 import api from "./api";
 
 // 🔹 Clear tokens + redirect
-export const handleLogout = () => {
+export const handleLogout = (router) => {
   if (typeof window !== "undefined") {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("isVerified");
-    localStorage.removeItem("user"); // clear cached user
-    window.location.href = "/login"; // ✅ always redirect to login
+    localStorage.removeItem("user");
+  }
+
+  // ✅ Always redirect to login
+  if (router) {
+    router.push("/login"); // soft navigation
+  } else {
+    window.location.href = "/login"; // fallback
   }
 };
 
@@ -16,7 +23,7 @@ const saveTokens = ({ access, refresh }) => {
   if (typeof window !== "undefined") {
     if (access) {
       localStorage.setItem("accessToken", access);
-      api.defaults.headers.Authorization = `Bearer ${access}`; // ✅ auto-attach
+      api.defaults.headers.Authorization = `Bearer ${access}`;
     }
     if (refresh) {
       localStorage.setItem("refreshToken", refresh);
@@ -44,13 +51,10 @@ const decodeJwt = (token) => {
 // 🔹 Check if refresh token is expired
 export const isRefreshExpired = () => {
   if (typeof window === "undefined") return true;
-
   const refresh = localStorage.getItem("refreshToken");
   if (!refresh) return true;
-
   const payload = decodeJwt(refresh);
   if (!payload?.exp) return true;
-
   const now = Math.floor(Date.now() / 1000);
   return payload.exp < now;
 };
@@ -74,11 +78,11 @@ export const refreshToken = async ({ refresh }) => {
   try {
     const res = await api.post("auth/token/refresh/", { refresh });
     if (res.data.access) {
-      saveTokens({ access: res.data.access, refresh }); // ✅ keep both synced
+      saveTokens({ access: res.data.access, refresh });
     }
     return res.data;
   } catch (err) {
-    handleLogout(); // ✅ unified logout
+    handleLogout();
     throw err;
   }
 };
@@ -88,12 +92,15 @@ export const getMe = async () => {
   try {
     const res = await api.get("auth/me/");
     if (typeof window !== "undefined" && res.data?.is_verified !== undefined) {
-      localStorage.setItem("isVerified", res.data.is_verified ? "true" : "false");
+      localStorage.setItem(
+        "isVerified",
+        res.data.is_verified ? "true" : "false"
+      );
     }
     return res.data;
   } catch (err) {
     if (err.response?.status === 401) {
-      handleLogout(); // ✅ unified logout
+      handleLogout();
     }
     throw err;
   }
@@ -109,6 +116,6 @@ export const updateMe = async (formData) => {
 };
 
 // 🔹 Logout utility
-export const logoutUser = () => {
-  handleLogout(); // ✅ unified logout
+export const logoutUser = (router) => {
+  handleLogout(router);
 };

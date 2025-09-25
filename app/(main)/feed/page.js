@@ -13,13 +13,20 @@ export default function FeedPage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        // ✅ Fetch posts (always works, even for guests)
         const postData = await getPosts();
         setPosts(postData.results || postData);
 
-        const userData = await getMe();
-        setUser(userData);
+        // ✅ Try fetching user, but don’t break if not logged in
+        try {
+          const userData = await getMe();
+          setUser(userData);
+        } catch (err) {
+          console.warn("No user logged in, continuing as guest");
+          setUser(null); // guest mode
+        }
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching posts:", err);
       } finally {
         setLoading(false);
       }
@@ -41,7 +48,7 @@ export default function FeedPage() {
         📚 Campus Feed
       </h1>
 
-      {/* Only verified users can create */}
+      {/* ✅ Only verified users can create */}
       {user?.is_verified && (
         <Link
           href="/post/new"

@@ -7,7 +7,8 @@ import {
   logoutUser,
   refreshToken,
   isRefreshExpired,
-} from "../lib/auth";
+} from "../app/lib/auth.js";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext();
 
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     return null;
   });
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // 🔹 Sync localStorage with user
   useEffect(() => {
@@ -30,9 +32,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // 🔹 Logout helper
+  // 🔹 Logout helper (redirects automatically)
   const logout = () => {
-    logoutUser(); // clears tokens from storage/api
+    logoutUser(router);
     setUser(null);
   };
 
@@ -43,7 +45,6 @@ export const AuthProvider = ({ children }) => {
       logout();
       return;
     }
-
     try {
       await refreshToken({ refresh });
       const me = await getMe();
@@ -100,9 +101,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, register, logout }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

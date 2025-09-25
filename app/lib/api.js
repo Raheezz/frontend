@@ -1,5 +1,5 @@
 import axios from "axios";
-import { isRefreshExpired, handleLogout } from "./auth"; // ✅ reuse helpers
+import { isRefreshExpired, handleLogout } from "./auth";
 
 const API_ROOT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -32,25 +32,25 @@ api.interceptors.response.use(
         const refresh = localStorage.getItem("refreshToken");
 
         if (!refresh || isRefreshExpired()) {
-          handleLogout(); // ✅ expired refresh → logout + redirect
+          handleLogout(); // no router here, safe fallback redirect
           return Promise.reject(error);
         }
 
         try {
-          const resp = await axios.post(`${API_ROOT}/api/auth/token/refresh/`, { refresh });
+          const resp = await axios.post(
+            `${API_ROOT}/api/auth/token/refresh/`,
+            { refresh }
+          );
           const newAccess = resp.data.access;
 
           if (newAccess) {
             localStorage.setItem("accessToken", newAccess);
-
-            // ✅ Update headers globally + for the failed request
             api.defaults.headers.Authorization = `Bearer ${newAccess}`;
             original.headers.Authorization = `Bearer ${newAccess}`;
-
-            return api(original); // retry original request
+            return api(original); // retry the request
           }
         } catch {
-          handleLogout(); // ✅ refresh failed → logout
+          handleLogout();
         }
       }
     }

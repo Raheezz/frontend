@@ -26,9 +26,7 @@ export default function Navbar() {
               + Create Post
             </Link>
           ) : user ? (
-            <span className="text-sm text-yellow-400">
-              Pending Approval
-            </span>
+            <span className="text-sm text-yellow-400">Pending Approval</span>
           ) : null}
         </div>
 
@@ -36,7 +34,7 @@ export default function Navbar() {
         <div>
           {loading ? null : user ? (
             <button
-              onClick={logout}
+              onClick={logout} // ✅ no need to pass router
               className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
             >
               Logout
