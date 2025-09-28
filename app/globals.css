@@ -1,28 +1,87 @@
 @import "tailwindcss";
 
-/* Define custom variables for background & text */
+/* =============================
+   THEME VARIABLES
+============================= */
 :root {
-  --background: #ffffff; /* Light background */
+  --background: #ffffff; /* Main white background */
   --foreground: #171717; /* Dark text */
+  --accent: #007acc; /* Light professional blue */
+  --accent-light: #e6f2fa; /* Soft blue tint */
 }
 
 .dark {
   --background: #0a0a0a; /* Dark background */
   --foreground: #ededed; /* Light text */
+  --accent: #4da6ff; /* Brighter blue for dark mode */
+  --accent-light: #1a1a1a; /* Darker tint */
 }
 
 /* Hook variables into Tailwind theme */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-/* Base body styles */
+/* =============================
+   BASE STYLES
+============================= */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   transition: background 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
+}
+
+/* =============================
+   PROFESSIONAL MAGAZINE LOOK
+============================= */
+
+/* Headings with blue underline */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+h1::after, h2::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--accent);
+  margin-top: 0.5rem;
+  border-radius: 2px;
+}
+
+/* Card-like sections */
+.section-card {
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Links */
+a {
+  color: var(--accent);
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: #005999;
+  text-decoration: underline;
+}
+
+/* Subtle dividers */
+.divider {
+  border-bottom: 1px solid var(--accent-light);
+  margin: 1.5rem 0;
 }

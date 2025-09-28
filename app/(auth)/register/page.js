@@ -19,10 +19,9 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.push("/feed");
+      router.push("/");
     }
   }, [user, router]);
 
@@ -39,7 +38,6 @@ export default function RegisterPage() {
     try {
       await register(form);
       setSuccess("✅ Registration successful! Please wait for admin approval.");
-      // redirect to login after short delay
       setTimeout(() => {
         router.push("/login");
       }, 2000);
@@ -56,18 +54,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-lg dark:bg-gray-800">
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">
-          Register
-        </h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white border border-blue-100 rounded-2xl shadow-md p-8">
+        <h1 className="text-2xl font-bold text-center text-blue-700 mb-6">Register</h1>
 
-        {error && (
-          <p className="mb-4 text-sm text-center text-red-500">{error}</p>
-        )}
-        {success && (
-          <p className="mb-4 text-sm text-center text-green-500">{success}</p>
-        )}
+        {error && <p className="mb-4 text-sm text-center text-red-600">{error}</p>}
+        {success && <p className="mb-4 text-sm text-center text-green-600">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -76,8 +68,8 @@ export default function RegisterPage() {
             placeholder="Username"
             value={form.username}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
-                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 
+                       focus:outline-none focus:ring-2 focus:ring-blue-300"
             required
           />
 
@@ -87,8 +79,8 @@ export default function RegisterPage() {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
-                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 
+                       focus:outline-none focus:ring-2 focus:ring-blue-300"
             required
           />
 
@@ -98,8 +90,8 @@ export default function RegisterPage() {
             placeholder="First Name"
             value={form.first_name}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
-                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 
+                       focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
 
           <input
@@ -108,8 +100,8 @@ export default function RegisterPage() {
             placeholder="Last Name"
             value={form.last_name}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
-                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 
+                       focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
 
           <input
@@ -118,16 +110,16 @@ export default function RegisterPage() {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-gray-50 text-gray-900 placeholder-gray-500 
-                       dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 
+                       focus:outline-none focus:ring-2 focus:ring-blue-300"
             required
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center items-center gap-2 bg-green-600 text-white p-2 rounded 
-                       hover:bg-green-700 transition-colors duration-200 disabled:opacity-50"
+            className="w-full bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 
+                       transition-colors disabled:opacity-50"
           >
             {loading ? (
               <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>

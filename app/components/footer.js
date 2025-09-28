@@ -1,8 +1,12 @@
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 border-t border-gray-800 py-4 mt-10 text-center text-sm text-gray-400">
+    <footer className="bg-white border-t border-blue-100 py-6 mt-10 text-center text-sm text-gray-600">
       <p>
-        © {new Date().getFullYear()} Jamia Project Magazine · Built by Campus Creatives
+        © {new Date().getFullYear()}{" "}
+        <span className="font-semibold text-blue-600">
+          Jamia Project Magazine
+        </span>{" "}
+        · Built by Campus Creatives
       </p>
     </footer>
   );

@@ -16,7 +16,6 @@ export default function PostDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ✅ Fetch post, comments, and user
   useEffect(() => {
     async function fetchData() {
       try {
@@ -38,7 +37,6 @@ export default function PostDetailPage() {
     if (id) fetchData();
   }, [id]);
 
-  // ✅ Add comment
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -51,7 +49,6 @@ export default function PostDetailPage() {
     }
   };
 
-  // ✅ Delete comment
   const handleDeleteComment = async (commentId) => {
     try {
       await deleteComment(commentId);
@@ -61,7 +58,6 @@ export default function PostDetailPage() {
     }
   };
 
-  // ✅ Toggle like
   const handleToggleLike = async () => {
     try {
       const updated = await toggleLike(id);
@@ -77,14 +73,14 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-white">
+      <div className="flex items-center justify-center min-h-screen text-gray-500">
         <p>Loading post...</p>
       </div>
     );
   }
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
+      <div className="flex items-center justify-center min-h-screen text-red-600">
         <p>{error}</p>
       </div>
     );
@@ -98,29 +94,28 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
-      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg relative">
-        {/* 🔙 Back to Feed (top) */}
+    <div className="min-h-screen bg-gray-50 px-4 py-6">
+      <div className="max-w-2xl mx-auto bg-white border border-blue-100 rounded-2xl shadow-md p-6">
+        {/* Back to Feed */}
         <div className="mb-4">
           <Link
             href="/feed"
-            className="inline-block bg-gray-600 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 hover:shadow transition"
+            className="inline-block text-blue-600 hover:underline text-sm"
           >
             ← Back to Feed
           </Link>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          {post.title}
-        </h1>
-        <p className="text-gray-700 dark:text-gray-300 mb-6">{post.content}</p>
+        {/* Title & Content */}
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
+        <p className="text-gray-700 mb-6 leading-relaxed">{post.content}</p>
 
-        {/* ❤️ Like button */}
-        <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-6">
+        {/* Author + Like */}
+        <div className="flex justify-between items-center text-sm text-gray-500 mb-6">
           <span>✍️ {post.author?.username || "Unknown"}</span>
           <button
             onClick={handleToggleLike}
-            className={`flex items-center gap-1 ${
+            className={`flex items-center gap-1 font-medium ${
               post.is_liked ? "text-red-600" : "text-gray-500"
             } hover:underline`}
           >
@@ -128,23 +123,22 @@ export default function PostDetailPage() {
           </button>
         </div>
 
-        {/* 💬 Comments */}
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+        {/* Comments */}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">
             Comments ({comments.length})
           </h2>
 
-          {/* List comments */}
           {comments.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400">No comments yet.</p>
+            <p className="text-gray-500">No comments yet.</p>
           ) : (
-            <div className="space-y-3 mb-32">
+            <div className="space-y-3">
               {comments.map((c) => (
                 <div
                   key={c.id}
-                  className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg flex justify-between items-start"
+                  className="p-3 bg-gray-50 rounded-lg flex justify-between items-start border"
                 >
-                  <p className="text-sm text-gray-900 dark:text-white">
+                  <p className="text-sm text-gray-800">
                     <span className="font-semibold">{c.author?.username || "Anon"}</span>:{" "}
                     {c.content}
                   </p>
@@ -162,33 +156,22 @@ export default function PostDetailPage() {
           )}
         </div>
 
-        {/* Sticky Footer with Comment + Back button */}
-        <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-3 rounded-t-lg shadow flex flex-col gap-2">
-          {/* Comment Input */}
-          <form onSubmit={handleAddComment} className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Write a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              className="flex-grow p-2 border rounded bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hover:shadow transition"
-            >
-              Post
-            </button>
-          </form>
-
-          {/* Back Button */}
-          <Link
-            href="/feed"
-            className="inline-block text-center bg-gray-600 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 hover:shadow transition"
+        {/* Comment Form */}
+        <form onSubmit={handleAddComment} className="flex gap-2 mt-6">
+          <input
+            type="text"
+            placeholder="Write a comment..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className="flex-grow p-2 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            ← Back to Feed
-          </Link>
-        </div>
+            Post
+          </button>
+        </form>
       </div>
     </div>
   );

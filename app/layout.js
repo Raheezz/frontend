@@ -24,15 +24,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-gray-100 transition-colors duration-300`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased transition-colors duration-300`}
       >
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             {/* Navbar stays on top */}
             <Navbar />
 
             {/* Page content */}
-            <main className="container mx-auto px-4 py-6">{children}</main>
+            <main className="max-w-5xl mx-auto px-6 py-10">{children}</main>
 
             {/* Footer stays at bottom */}
             <Footer />

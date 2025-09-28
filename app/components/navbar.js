@@ -1,4 +1,3 @@
-// app/components/navbar.js
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -9,27 +8,37 @@ export default function Navbar() {
   const router = useRouter();
 
   return (
-    <nav className="bg-gray-900 text-white p-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
+    <nav className="bg-white border-b border-blue-100 shadow-sm sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
         {/* Logo / Home */}
-        <Link href="/" className="text-xl font-bold">
+        <Link
+          href="/"
+          className="text-2xl font-bold text-blue-700 tracking-tight"
+        >
           Campus Creatives
         </Link>
 
         {/* Links */}
-        <div className="flex space-x-6">
-          <Link href="/">Feed</Link> {/* ✅ Now always points to "/" */}
+        <div className="flex space-x-6 font-medium text-gray-700">
+          <Link href="/" className="hover:text-blue-600">
+            Feed
+          </Link>
 
-          {/* Show profile only if logged in */}
-          {user && <Link href="/profile">Profile</Link>}
+          {user && (
+            <Link href="/profile" className="hover:text-blue-600">
+              Profile
+            </Link>
+          )}
 
-          {/* Only verified users can create posts */}
           {user?.is_verified ? (
-            <Link href="/post/new" className="font-semibold text-green-400">
+            <Link
+              href="/post/new"
+              className="font-semibold text-blue-600 hover:text-blue-800"
+            >
               + Create Post
             </Link>
           ) : user ? (
-            <span className="text-sm text-yellow-400">Pending Approval</span>
+            <span className="text-sm text-yellow-600">Pending Approval</span>
           ) : null}
         </div>
 
@@ -37,17 +46,20 @@ export default function Navbar() {
         <div>
           {loading ? null : user ? (
             <button
-              onClick={() => logout(router)} // ✅ redirect after logout
-              className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
+              onClick={() => logout(router)}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
             >
               Logout
             </button>
           ) : (
-            <div className="space-x-4">
-              <Link href="/login" className="hover:underline">
+            <div className="space-x-4 text-gray-700 font-medium">
+              <Link href="/login" className="hover:text-blue-600">
                 Login
               </Link>
-              <Link href="/register" className="hover:underline">
+              <Link
+                href="/register"
+                className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
                 Register
               </Link>
             </div>

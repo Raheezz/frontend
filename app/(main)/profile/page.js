@@ -46,31 +46,29 @@ function ProfileContent() {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-white">
+      <div className="flex justify-center items-center min-h-screen text-gray-600">
         Loading profile...
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
+      <div className="bg-white border border-blue-100 p-8 rounded-2xl shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold text-center mb-6 text-blue-700">
           My Profile
         </h1>
 
         {/* User info */}
         <div className="text-center mb-4">
-          <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+          <p className="text-lg font-semibold text-gray-800">
             {user.first_name} {user.last_name}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {user.email}
-          </p>
+          <p className="text-sm text-gray-500">{user.email}</p>
         </div>
 
         {/* Avatar preview */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-6">
           <img
             src={
               avatar
@@ -78,7 +76,7 @@ function ProfileContent() {
                 : user.avatar || "/default-avatar.png"
             }
             alt="Avatar"
-            className="w-24 h-24 rounded-full object-cover border"
+            className="w-24 h-24 rounded-full object-cover border border-blue-200 shadow-sm"
           />
         </div>
 
@@ -87,10 +85,10 @@ function ProfileContent() {
           <p
             className={`mb-4 text-center text-sm ${
               messageType === "success"
-                ? "text-green-500"
+                ? "text-green-600"
                 : messageType === "error"
-                ? "text-red-500"
-                : "text-yellow-500"
+                ? "text-red-600"
+                : "text-yellow-600"
             }`}
           >
             {message}
@@ -103,19 +101,19 @@ function ProfileContent() {
             type="file"
             accept="image/*"
             onChange={(e) => setAvatar(e.target.files[0])}
-            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
+            className="w-full p-2 border rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
 
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="Write your bio..."
-            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors"
+            className="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             Save Changes
           </button>
