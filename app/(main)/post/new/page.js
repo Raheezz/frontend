@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPost } from "../../../lib/posts";
 import ProtectedRoute from "../../../components/ProtectedRoute"; // 👈 use wrapper
-import { useAuth } from "../../../context/AuthContext"; // 👈 get user directly
+import { useAuth } from "@/context/AuthContext";
 
 function NewPostContent() {
   const router = useRouter();
