@@ -109,13 +109,13 @@ export const AuthProvider = ({ children }) => {
     setUser(me);
   };
 
-  // 🔹 Register
+  // 🔹 Register (no auto-login, just message)
   const register = async (data) => {
-    const tokens = await registerUser(data);
-    localStorage.setItem("accessToken", tokens.access);
-    localStorage.setItem("refreshToken", tokens.refresh);
-    const me = await getMe();
-    setUser(me);
+    const res = await registerUser(data);
+    if (res.message) {
+      return res.message;
+    }
+    return "Registration successful! Please wait for admin approval.";
   };
 
   return (
