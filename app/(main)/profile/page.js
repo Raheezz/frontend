@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMe, updateMe } from "../../lib/auth";  // ✅ fixed import
+import { getMe, updateMe } from "../../lib/auth";
+import ProtectedRoute from "../../components/ProtectedRoute";
 
-export default function ProfilePage() {
+function ProfileContent() {
   const [user, setUser] = useState(null);
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("info"); // success, error, warning
+  const [messageType, setMessageType] = useState("info");
 
   useEffect(() => {
     async function fetchUser() {
@@ -18,8 +19,6 @@ export default function ProfilePage() {
         setBio(data.bio || "");
       } catch (err) {
         console.error("Error fetching profile:", err);
-        setMessage("⚠️ You must be logged in to view your profile.");
-        setMessageType("warning");
       }
     }
     fetchUser();
@@ -32,9 +31,7 @@ export default function ProfilePage() {
     try {
       const formData = new FormData();
       formData.append("bio", bio);
-      if (avatar) {
-        formData.append("avatar", avatar);
-      }
+      if (avatar) formData.append("avatar", avatar);
 
       const updated = await updateMe(formData);
       setUser(updated);
@@ -67,13 +64,19 @@ export default function ProfilePage() {
           <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
             {user.first_name} {user.last_name}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {user.email}
+          </p>
         </div>
 
         {/* Avatar preview */}
         <div className="flex justify-center mb-4">
           <img
-            src={avatar ? URL.createObjectURL(avatar) : user.avatar || "/default-avatar.png"}
+            src={
+              avatar
+                ? URL.createObjectURL(avatar)
+                : user.avatar || "/default-avatar.png"
+            }
             alt="Avatar"
             className="w-24 h-24 rounded-full object-cover border"
           />
@@ -119,5 +122,14 @@ export default function ProfilePage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// ✅ Wrap in ProtectedRoute
+export default function ProfilePage() {
+  return (
+    <ProtectedRoute>
+      <ProfileContent />
+    </ProtectedRoute>
   );
 }

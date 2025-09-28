@@ -1,32 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPost } from "../../../lib/posts";
-import { getMe } from "../../../lib/auth";
+import ProtectedRoute from "../../../components/ProtectedRoute"; // 👈 use wrapper
+import { useAuth } from "../../../context/AuthContext"; // 👈 get user directly
 
-export default function NewPostPage() {
+function NewPostContent() {
   const router = useRouter();
+  const { user } = useAuth();
   const [form, setForm] = useState({ title: "", content: "" });
-  const [image, setImage] = useState(null); // 🔹 image file
-  const [preview, setPreview] = useState(null); // 🔹 preview URL
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const data = await getMe();
-        setUser(data);
-      } catch (err) {
-        console.error("Error fetching user:", err);
-      } finally {
-        setChecking(false);
-      }
-    }
-    fetchUser();
-  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -47,18 +33,16 @@ export default function NewPostPage() {
     try {
       let data;
       if (image) {
-        // 🔹 Use FormData if image exists
         data = new FormData();
         data.append("title", form.title);
         data.append("content", form.content);
         data.append("image", image);
       } else {
-        // 🔹 Fallback: JSON
         data = { ...form };
       }
 
       await createPost(data);
-      router.push("/feed"); // redirect back to feed
+      router.push("/feed");
     } catch (err) {
       console.error("Error creating post:", err);
     } finally {
@@ -66,23 +50,8 @@ export default function NewPostPage() {
     }
   };
 
-  if (checking) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        Checking permissions...
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        ⚠️ You must be logged in to create a post.
-      </div>
-    );
-  }
-
-  if (!user.is_verified) {
+  // Extra guard: only verified users can post
+  if (!user?.is_verified) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
         ⏳ Your account is pending admin approval. You can browse posts but not publish yet.
@@ -119,7 +88,6 @@ export default function NewPostPage() {
           required
         />
 
-        {/* 🔹 Image upload input */}
         <input
           type="file"
           accept="image/*"
@@ -127,7 +95,6 @@ export default function NewPostPage() {
           className="w-full mb-3 text-sm text-gray-700 dark:text-gray-300"
         />
 
-        {/* 🔹 Preview selected image */}
         {preview && (
           <div className="mb-3">
             <img
@@ -147,5 +114,14 @@ export default function NewPostPage() {
         </button>
       </form>
     </div>
+  );
+}
+
+// ✅ Wrap in ProtectedRoute
+export default function NewPostPage() {
+  return (
+    <ProtectedRoute>
+      <NewPostContent />
+    </ProtectedRoute>
   );
 }

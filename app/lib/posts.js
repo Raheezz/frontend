@@ -1,7 +1,12 @@
 import api from "./api";
 
 // 🔹 Get all posts
-export const getPosts = () => api.get("posts/");
+
+export const getPosts = async () => {
+  const res = await api.get("posts/");
+  return res.data;
+};
+
 
 // 🔹 Create a new post (supports JSON or FormData)
 export const createPost = (data) => {

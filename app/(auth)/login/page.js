@@ -17,7 +17,7 @@ export default function LoginPage() {
   // ✅ Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.push("/feed");
+      router.push("/"); // 🔄 changed from "/feed"
     }
   }, [user, router]);
 
@@ -32,12 +32,14 @@ export default function LoginPage() {
       setSuccess("✅ Login successful!");
 
       if (!user?.is_verified) {
-        setSuccess("✅ Login successful! Your account is pending admin approval.");
+        setSuccess(
+          "✅ Login successful! Your account is pending admin approval."
+        );
       }
 
       // Redirect after short delay so message is visible
       setTimeout(() => {
-        router.push("/feed");
+        router.push("/"); // 🔄 changed from "/feed"
       }, 1500);
     } catch (err) {
       if (err.response?.data?.detail) {

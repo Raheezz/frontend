@@ -1,16 +1,25 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState
+} from "react";
+
 import {
   loginUser,
   registerUser,
   getMe,
   logoutUser,
   refreshToken,
-  isRefreshExpired,
-} from "../app/lib/auth.js";
+  isRefreshExpired
+} from "../app/lib/auth";
+
 import { useRouter } from "next/navigation";
 
-const AuthContext = createContext();
+// ✅ Export context so other files can import/use it
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -23,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // 🔹 Sync localStorage with user
+  // 🔹 Sync user <-> localStorage
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -32,13 +41,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // 🔹 Logout helper (redirects automatically)
+  // 🔹 Logout helper
   const logout = () => {
     logoutUser(router);
     setUser(null);
   };
 
-  // 🔹 Try refreshing tokens + refetch user
+  // 🔹 Try refreshing tokens
   const tryRefresh = async () => {
     const refresh = localStorage.getItem("refreshToken");
     if (!refresh || isRefreshExpired()) {
@@ -55,22 +64,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🔹 On first load, check auth
+  // 🔹 On first load, check auth state
   useEffect(() => {
     const initAuth = async () => {
       try {
         if (isRefreshExpired()) {
           logout();
+          setUser(null);
         } else {
-          const me = await getMe();
-          setUser(me);
+          const refresh = localStorage.getItem("refreshToken");
+          if (refresh) {
+            const me = await getMe();
+            setUser(me);
+          } else {
+            setUser(null); // guest
+          }
         }
-      } catch {
+      } catch (err) {
+        console.error("Auth init error:", err);
         await tryRefresh();
+        setUser(null); // allow guest
       } finally {
         setLoading(false);
       }
     };
+
     initAuth();
   }, []);
 
@@ -107,4 +125,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// ✅ Hook for easy access in components
 export const useAuth = () => useContext(AuthContext);

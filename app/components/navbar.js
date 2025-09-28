@@ -1,9 +1,12 @@
+// app/components/navbar.js
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, logout, loading } = useAuth();
+  const router = useRouter();
 
   return (
     <nav className="bg-gray-900 text-white p-4 shadow-md">
@@ -15,7 +18,7 @@ export default function Navbar() {
 
         {/* Links */}
         <div className="flex space-x-6">
-          <Link href="/feed">Feed</Link>
+          <Link href="/">Feed</Link> {/* ✅ Now always points to "/" */}
 
           {/* Show profile only if logged in */}
           {user && <Link href="/profile">Profile</Link>}
@@ -34,7 +37,7 @@ export default function Navbar() {
         <div>
           {loading ? null : user ? (
             <button
-              onClick={logout} // ✅ no need to pass router
+              onClick={() => logout(router)} // ✅ redirect after logout
               className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
             >
               Logout
