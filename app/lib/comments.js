@@ -1,4 +1,3 @@
-// lib/comments.js
 import api from "./api";
 
 // 🔹 Get all comments (optionally filter by post)

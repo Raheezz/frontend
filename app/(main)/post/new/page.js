@@ -28,6 +28,7 @@ function NewPostContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) return; // Safety check
     setLoading(true);
 
     try {
@@ -41,8 +42,11 @@ function NewPostContent() {
         data = { ...form };
       }
 
-      await createPost(data);
-      router.push("/feed");
+      // Send post to backend
+      const createdPost = await createPost(data);
+
+      // Optional: if backend returns full post including author info, you can redirect to its detail page
+      router.push(`/posts/${createdPost.id}`); 
     } catch (err) {
       console.error("Error creating post:", err);
     } finally {

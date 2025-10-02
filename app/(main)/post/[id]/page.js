@@ -71,27 +71,24 @@ export default function PostDetailPage() {
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen text-gray-500">
         <p>Loading post...</p>
       </div>
     );
-  }
-  if (error) {
+  if (error)
     return (
       <div className="flex items-center justify-center min-h-screen text-red-600">
         <p>{error}</p>
       </div>
     );
-  }
-  if (!post) {
+  if (!post)
     return (
       <div className="flex items-center justify-center min-h-screen text-gray-400">
         <p>Post not found.</p>
       </div>
     );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6">
@@ -110,10 +107,20 @@ export default function PostDetailPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
         <p className="text-gray-700 mb-6 leading-relaxed">{post.content}</p>
 
-        {/* Author + Like */}
+        {/* Author + Avatar + Like */}
         <div className="flex justify-between items-center text-sm text-gray-500 mb-6">
-          <span>✍️ {post.author?.username || "Unknown"}</span>
+          <div className="flex items-center gap-2">
+            {post.author?.avatar && (
+              <img
+                src={post.author.avatar}
+                alt="avatar"
+                className="w-8 h-8 rounded-full"
+              />
+            )}
+            <span>✍️ {post.author?.username || "Unknown"}</span>
+          </div>
           <button
+            type="button" // ✅ Ensure it's a button
             onClick={handleToggleLike}
             className={`flex items-center gap-1 font-medium ${
               post.is_liked ? "text-red-600" : "text-gray-500"
@@ -139,11 +146,14 @@ export default function PostDetailPage() {
                   className="p-3 bg-gray-50 rounded-lg flex justify-between items-start border"
                 >
                   <p className="text-sm text-gray-800">
-                    <span className="font-semibold">{c.author?.username || "Anon"}</span>:{" "}
-                    {c.content}
+                    <span className="font-semibold">
+                      {c.author?.username || "Anon"}
+                    </span>
+                    : {c.content}
                   </p>
                   {user && c.author?.id === user.id && (
                     <button
+                      type="button" // ✅ Ensure it's a button
                       onClick={() => handleDeleteComment(c.id)}
                       className="text-xs text-red-500 hover:underline"
                     >
