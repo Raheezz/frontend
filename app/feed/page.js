@@ -39,7 +39,7 @@ function FeedContent() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">
-  <span className="bg-gradient-to-r from-blue-700 via-sky-500 to-blue-400 bg-clip-text text-transparent">
+  <span className="bg-gradient-to-r from-blue-500 via-sky-600 to-blue-500 bg-clip-text text-transparent">
     Campus Feed
   </span>{" "}
   📚
