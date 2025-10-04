@@ -42,16 +42,7 @@ function FeedContent() {
         Campus Feed 📚
       </h1>
 
-      {user && (
-        <div className="flex justify-center mb-8">
-          <Link
-            href="/posts/new"
-            className="inline-block bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition-colors"
-          >
-            ➕ Add Post
-          </Link>
-        </div>
-      )}
+      {/* ✅ Removed the extra ➕ Add Post button here */}
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.length > 0 ? (
@@ -95,7 +86,7 @@ function FeedContent() {
                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
 
                   <button
-                    type="button" // ✅ Important: avoid form submit
+                    type="button"
                     onClick={() => handleToggleLike(post.id)}
                     className={`flex items-center gap-1 font-medium ${
                       post.is_liked ? "text-red-600" : "text-gray-500"
