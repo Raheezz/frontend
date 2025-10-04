@@ -3,16 +3,14 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion"; // ✅ Add animation
+import { motion, AnimatePresence } from "framer-motion"; // ✅ animation
 
 export default function Navbar() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleNavClick = () => {
-    setMenuOpen(false); // ✅ closes menu after clicking any link
-  };
+  const handleNavClick = () => setMenuOpen(false); // ✅ closes menu after clicking any link
 
   return (
     <nav className="bg-white border-b border-blue-100 shadow-sm sticky top-0 z-50">
@@ -20,10 +18,12 @@ export default function Navbar() {
         {/* Logo / Home */}
         <Link
           href="/"
-          className="text-2xl font-bold text-blue-700 tracking-tight"
           onClick={handleNavClick}
+          className="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-blue-700 via-sky-500 to-blue-400 bg-clip-text text-transparent select-none transform hover:scale-105 transition-transform duration-300"
+          style={{ fontFamily: "'Poppins', sans-serif", letterSpacing: "0.5px" }}
         >
-          Jamia Sparks
+          <span className="drop-shadow-sm">Jamia</span>
+          <span className="ml-1 italic">Sparks</span>
         </Link>
 
         {/* Desktop Links */}
@@ -94,20 +94,12 @@ export default function Navbar() {
             transition={{ duration: 0.2 }}
             className="md:hidden bg-white border-t border-blue-100 px-6 py-4 space-y-4 text-center shadow-md"
           >
-            <Link
-              href="/"
-              className="block hover:text-blue-600"
-              onClick={handleNavClick}
-            >
+            <Link href="/" className="block hover:text-blue-600" onClick={handleNavClick}>
               Feed
             </Link>
 
             {user && (
-              <Link
-                href="/profile"
-                className="block hover:text-blue-600"
-                onClick={handleNavClick}
-              >
+              <Link href="/profile" className="block hover:text-blue-600" onClick={handleNavClick}>
                 Profile
               </Link>
             )}
@@ -121,9 +113,7 @@ export default function Navbar() {
                 + Create Post
               </Link>
             ) : user ? (
-              <span className="block text-sm text-yellow-600">
-                Pending Approval
-              </span>
+              <span className="block text-sm text-yellow-600">Pending Approval</span>
             ) : null}
 
             {loading ? null : user ? (
@@ -138,11 +128,7 @@ export default function Navbar() {
               </button>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="block hover:text-blue-600"
-                  onClick={handleNavClick}
-                >
+                <Link href="/login" className="block hover:text-blue-600" onClick={handleNavClick}>
                   Login
                 </Link>
                 <Link
