@@ -38,9 +38,12 @@ function FeedContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center text-blue-700">
-        Campus Feed 📚
+      <h1
+         className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-blue-700 via-sky-500 to-blue-400 bg-clip-text text-transparent"
+      >
+       Campus Feed 📚
       </h1>
+
 
       {/* ✅ Removed the extra ➕ Add Post button here */}
 
