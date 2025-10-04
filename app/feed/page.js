@@ -39,15 +39,11 @@ function FeedContent() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">
-  <span className="bg-gradient-to-r from-blue-500 via-sky-600 to-blue-500 bg-clip-text text-transparent">
-    Campus Feed
-  </span>{" "}
-  📚
-</h1>
-
-
-
-      {/* ✅ Removed the extra ➕ Add Post button here */}
+        <span className="bg-gradient-to-r from-blue-500 via-sky-600 to-blue-500 bg-clip-text text-transparent">
+          Campus Feed
+        </span>{" "}
+        📚
+      </h1>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.length > 0 ? (
@@ -82,7 +78,9 @@ function FeedContent() {
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
                   {post.title}
                 </h2>
-                <p className="text-gray-600 text-sm line-clamp-3">
+
+                {/* ✅ Full content visible now */}
+                <p className="text-gray-600 text-sm">
                   {post.content}
                 </p>
 
