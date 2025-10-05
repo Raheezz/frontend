@@ -37,15 +37,15 @@ function FeedContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">
+    <div className="min-h-screen bg-gray-50 text-gray-900 px-3 sm:px-4 py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-center">
         <span className="bg-gradient-to-r from-blue-500 via-sky-600 to-blue-500 bg-clip-text text-transparent">
           Campus Feed
         </span>{" "}
         📚
       </h1>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-lg sm:max-w-none mx-auto">
         {posts.length > 0 ? (
           posts.map((post) => (
             <div
@@ -56,35 +56,35 @@ function FeedContent() {
                 <img
                   src={post.image}
                   alt={post.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-44 sm:h-48 object-cover"
                 />
               )}
 
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 {/* Author Info */}
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-3 mb-2">
                   {post.author?.avatar && (
                     <img
                       src={post.author.avatar}
                       alt="avatar"
-                      className="w-6 h-6 rounded-full"
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border border-blue-100"
                     />
                   )}
-                  <span className="font-medium text-blue-600">
+                  <span className="font-medium text-blue-600 text-sm sm:text-base">
                     {post.author?.username || post.author_name || "Unknown"}
                   </span>
                 </div>
 
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
                   {post.title}
                 </h2>
 
-                {/* ✅ Full content visible now */}
-                <p className="text-gray-600 text-sm">
+                {/* ✅ Poem alignment preserved */}
+                <p className="text-gray-600 text-sm whitespace-pre-wrap leading-relaxed">
                   {post.content}
                 </p>
 
-                {/* Footer with Like & Comment */}
+                {/* Footer */}
                 <div className="mt-4 flex items-center justify-between text-xs text-gray-500 border-t border-blue-50 pt-2">
                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
 
