@@ -1,14 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getPostById, toggleLike } from "../../../lib/posts";
-import {
-  getComments,
-  createComment,
-  deleteComment,
-} from "../../../lib/comments";
+import { getComments, createComment, deleteComment } from "../../../lib/comments";
 import { getMe } from "../../../lib/auth";
 
 export default function PostDetailPage() {
@@ -22,169 +17,77 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     async function fetchData() {
+      if (!id) return;
       try {
         const [postData, commentData, userData] = await Promise.all([
           getPostById(id),
           getComments({ post: id }),
           getMe(),
         ]);
+        if (!postData?.id) throw new Error("Post not found");
         setPost(postData);
         setComments(commentData.results || commentData);
         setUser(userData);
       } catch (err) {
-        console.error("Error fetching post or comments:", err);
+        console.error(err);
         setError("Failed to load post.");
       } finally {
         setLoading(false);
       }
     }
-    if (id) fetchData();
+    fetchData();
   }, [id]);
-
-  const handleAddComment = async (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-    try {
-      const data = await createComment({ post: id, content: newComment });
-      setComments((prev) => [data, ...prev]);
-      setNewComment("");
-    } catch (err) {
-      console.error("Error creating comment:", err);
-    }
-  };
-
-  const handleDeleteComment = async (commentId) => {
-    try {
-      await deleteComment(commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
-    } catch (err) {
-      console.error("Error deleting comment:", err);
-    }
-  };
 
   const handleToggleLike = async () => {
     try {
       const updated = await toggleLike(id);
-      setPost((prev) => ({
-        ...prev,
-        likes_count: updated.likes_count,
-        is_liked: updated.is_liked,
-      }));
+      setPost(prev => ({ ...prev, likes_count: updated.likes_count, is_liked: updated.is_liked }));
     } catch (err) {
-      console.error("Error toggling like:", err);
+      console.error(err);
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center min-h-screen text-gray-500">
-        <p>Loading post...</p>
-      </div>
-    );
-  if (error)
-    return (
-      <div className="flex items-center justify-center min-h-screen text-red-600">
-        <p>{error}</p>
-      </div>
-    );
-  if (!post)
-    return (
-      <div className="flex items-center justify-center min-h-screen text-gray-400">
-        <p>Post not found.</p>
-      </div>
-    );
+  if (loading) return <p className="flex items-center justify-center min-h-screen" style={{ color: "var(--foreground)" }}>Loading post...</p>;
+  if (error) return <p className="flex items-center justify-center min-h-screen text-red-600">{error}</p>;
+  if (!post) return <p className="flex items-center justify-center min-h-screen" style={{ color: "var(--foreground)" }}>Post not found.</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-6">
-      <div className="max-w-2xl mx-auto bg-white border border-blue-100 rounded-2xl shadow-md p-6">
-        {/* Back to Feed */}
-        <div className="mb-4">
-          <Link
-            href="/main/feed"
-            className="inline-block text-blue-600 hover:underline text-sm"
-          >
-            ← Back to Feed
-          </Link>
-        </div>
+    <div className="min-h-screen px-4 py-6" style={{ background: "var(--background)", color: "var(--foreground)" }}>
+      <div className="max-w-2xl mx-auto rounded-2xl shadow-md section-card p-6">
+        <Link href="/main/feed" className="inline-block text-accent hover:underline text-sm" style={{ color: "var(--accent)" }}>← Back to Feed</Link>
 
-        {/* Title & Content */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
-        <p className="text-gray-700 mb-6 leading-relaxed">{post.content}</p>
+        <h1 className="text-3xl font-bold mb-4" style={{ color: "var(--foreground)" }}>{post.title}</h1>
+        <p className="mb-6 leading-relaxed" style={{ color: "var(--foreground)" }}>{post.content}</p>
 
-        {/* Author + Avatar + Like */}
-        <div className="flex justify-between items-center text-sm text-gray-500 mb-6">
+        <div className="flex justify-between items-center text-sm mb-6" style={{ color: "var(--foreground)" }}>
           <div className="flex items-center gap-2">
-            {post.author?.avatar && (
-              <img
-                src={post.author.avatar}
-                alt="avatar"
-                className="w-8 h-8 rounded-full"
-              />
-            )}
+            {post.author?.avatar && <img src={post.author.avatar} alt="avatar" className="w-8 h-8 rounded-full" />}
             <span>✍️ {post.author?.username || "Unknown"}</span>
           </div>
-          <button
-            type="button" // ✅ Ensure it's a button
-            onClick={handleToggleLike}
-            className={`flex items-center gap-1 font-medium ${
-              post.is_liked ? "text-red-600" : "text-gray-500"
-            } hover:underline`}
-          >
+          <button type="button" onClick={handleToggleLike} className={`flex items-center gap-1 font-medium hover:underline`} style={{ color: post.is_liked ? "#f87171" : "var(--foreground)" }}>
             ❤️ {post.likes_count || 0}
           </button>
         </div>
 
-        {/* Comments */}
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">
-            Comments ({comments.length})
-          </h2>
+        <h2 className="text-xl font-semibold mb-3" style={{ color: "var(--foreground)" }}>Comments ({comments.length})</h2>
+        {comments.length === 0 ? <p style={{ color: "var(--foreground)" }}>No comments yet.</p> : (
+          <div className="space-y-3">
+            {comments.map(c => (
+              <div key={c.id} className="p-3 rounded-lg border section-card flex justify-between items-start">
+                <p className="text-sm">
+                  <span className="font-semibold">{c.author?.username || "Anon"}</span>: {c.content}
+                </p>
+                {user && c.author?.id === user.id && (
+                  <button type="button" onClick={() => deleteComment(c.id)} className="text-xs text-red-500 hover:underline">Delete</button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
-          {comments.length === 0 ? (
-            <p className="text-gray-500">No comments yet.</p>
-          ) : (
-            <div className="space-y-3">
-              {comments.map((c) => (
-                <div
-                  key={c.id}
-                  className="p-3 bg-gray-50 rounded-lg flex justify-between items-start border"
-                >
-                  <p className="text-sm text-gray-800">
-                    <span className="font-semibold">
-                      {c.author?.username || "Anon"}
-                    </span>
-                    : {c.content}
-                  </p>
-                  {user && c.author?.id === user.id && (
-                    <button
-                      type="button" // ✅ Ensure it's a button
-                      onClick={() => handleDeleteComment(c.id)}
-                      className="text-xs text-red-500 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Comment Form */}
-        <form onSubmit={handleAddComment} className="flex gap-2 mt-6">
-          <input
-            type="text"
-            placeholder="Write a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="flex-grow p-2 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Post
-          </button>
+        <form onSubmit={e => { e.preventDefault(); }} className="flex gap-2 mt-6">
+          <input type="text" placeholder="Write a comment..." value={newComment} onChange={e => setNewComment(e.target.value)} className="flex-grow p-2 rounded-lg focus:outline-none" style={{ background: "var(--accent-light)", color: "var(--foreground)", borderColor: "var(--accent)" }} />
+          <button type="submit" className="px-4 py-2 rounded-lg transition" style={{ background: "var(--accent)", color: "#fff" }}>Post</button>
         </form>
       </div>
     </div>

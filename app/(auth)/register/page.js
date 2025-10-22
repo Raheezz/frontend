@@ -2,166 +2,128 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createPost } from "../../../lib/posts";
-import ProtectedRoute from "../../../components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 
-function NewPostContent() {
+export default function RegisterPage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const [form, setForm] = useState({ title: "", content: "" });
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const { user, register } = useAuth();
+
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    first_name: "",
+    last_name: "",
+    password: "",
+  });
+
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    if (stored === "dark") {
-      document.documentElement.classList.add("dark");
-      setDark(true);
+    if (user) {
+      router.push("/");
     }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (dark) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    }
-    setDark(!dark);
-  };
+  }, [user, router]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return; 
+    setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
-      let data;
-      if (image) {
-        data = new FormData();
-        data.append("title", form.title);
-        data.append("content", form.content);
-        data.append("image", image);
-      } else {
-        data = { ...form };
-      }
-
-      const response = await createPost(data);
-      setSuccess(true);
-
+      await register(form);
+      setSuccess("✅ Registration successful! Please wait for admin approval.");
       setTimeout(() => {
-        router.push("/");
-      }, 1500);
-
+        router.push("/login");
+      }, 2000);
     } catch (err) {
-      console.error("Error creating post:", err);
-      alert("Failed to publish post. Try again!");
+      if (err.response?.data) {
+        const firstError = Object.values(err.response.data)[0][0];
+        setError(`❌ ${firstError}`);
+      } else {
+        setError("❌ Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user?.is_verified) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 px-4 text-center transition-colors">
-        ⏳ Your account is pending admin approval. You can browse posts but not publish yet.
-      </div>
-    );
-  }
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4 transition-colors">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-2xl shadow-md p-6 w-full max-w-md relative transition-colors"
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold mb-4 text-blue-700 dark:text-blue-400">
-            ✍️ Create New Post
-          </h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white border border-blue-100 rounded-2xl shadow-md p-8">
+        <h1 className="text-2xl font-bold text-center text-blue-700 mb-6">Register</h1>
+
+        {error && <p className="mb-4 text-sm text-center text-red-600">{error}</p>}
+        {success && <p className="mb-4 text-sm text-center text-green-600">{success}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            name="username"
+            type="text"
+            placeholder="Username"
+            value={form.username}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            required
+          />
+
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            required
+          />
+
+          <input
+            name="first_name"
+            type="text"
+            placeholder="First Name"
+            value={form.first_name}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          />
+
+          <input
+            name="last_name"
+            type="text"
+            placeholder="Last Name"
+            value={form.last_name}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          />
+
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            required
+          />
+
           <button
-            onClick={toggleDarkMode}
-            className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg transition-colors"
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
           >
-            {dark ? "☀️ Light Mode" : "🌙 Dark Mode"}
+            {loading ? (
+              <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+            ) : (
+              "Register"
+            )}
           </button>
-        </div>
-
-        <input
-          name="title"
-          placeholder="Title"
-          value={form.title}
-          onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg border bg-gray-50 dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          required
-        />
-
-        <textarea
-          name="content"
-          placeholder="Write your post..."
-          value={form.content}
-          onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg border bg-gray-50 dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          rows="5"
-          required
-        />
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="w-full mb-3 text-sm text-gray-600 dark:text-gray-300"
-        />
-
-        {preview && (
-          <div className="mb-3">
-            <img
-              src={preview}
-              alt="Preview"
-              className="max-h-48 rounded-lg border dark:border-gray-600"
-            />
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-2 rounded-lg transition disabled:opacity-50"
-        >
-          {loading ? "Publishing..." : "Publish"}
-        </button>
-
-        {success && (
-          <div className="absolute top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md animate-fadeIn">
-            ✅ Post published successfully!
-          </div>
-        )}
-      </form>
+        </form>
+      </div>
     </div>
-  );
-}
-
-export default function NewPostPage() {
-  return (
-    <ProtectedRoute>
-      <NewPostContent />
-    </ProtectedRoute>
   );
 }
