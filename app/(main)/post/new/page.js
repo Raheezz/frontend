@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { createPost } from "../../../lib/posts";
 import ProtectedRoute from "../../../components/ProtectedRoute";
-import { useAuth } from "@/context/AuthContext";
 
 function NewPostContent() {
   const router = useRouter();
@@ -14,6 +14,14 @@ function NewPostContent() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false); // ✅ success toast
+  const [dark, setDark] = useState(false);
+
+  // ✅ Detect current theme
+  useEffect(() => {
+    if (document.documentElement.classList.contains("dark")) {
+      setDark(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -63,27 +71,43 @@ function NewPostContent() {
 
   if (!user?.is_verified) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-gray-700 px-4 text-center">
+      <div
+        className={`flex items-center justify-center min-h-screen px-4 text-center ${
+          dark ? "bg-gray-900 text-gray-300" : "bg-gray-50 text-gray-700"
+        }`}
+      >
         ⏳ Your account is pending admin approval. You can browse posts but not publish yet.
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+    <div
+      className={`flex items-center justify-center min-h-screen px-4 ${
+        dark ? "bg-gray-900" : "bg-gray-50"
+      }`}
+    >
       <form
         onSubmit={handleSubmit}
-        className="bg-white border border-blue-100 rounded-2xl shadow-md p-6 w-full max-w-md relative"
+        className={`w-full max-w-md p-6 rounded-2xl shadow-md relative border transition-colors ${
+          dark ? "bg-gray-800 border-gray-700" : "bg-white border-blue-100"
+        }`}
       >
-        <h1 className="text-2xl font-bold mb-4 text-blue-700">✍️ Create New Post</h1>
+        <h1 className={`text-2xl font-bold mb-4 ${dark ? "text-blue-400" : "text-blue-700"}`}>
+          ✍️ Create New Post
+        </h1>
 
         <input
           name="title"
           placeholder="Title"
           value={form.title}
           onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg border bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           required
+          className={`w-full p-3 mb-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors ${
+            dark
+              ? "bg-gray-700 text-gray-200 border-gray-600 focus:ring-blue-400"
+              : "bg-gray-50 text-gray-700 border-gray-300 focus:ring-blue-300"
+          }`}
         />
 
         <textarea
@@ -91,28 +115,42 @@ function NewPostContent() {
           placeholder="Write your post..."
           value={form.content}
           onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg border bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           rows="5"
           required
+          className={`w-full p-3 mb-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors ${
+            dark
+              ? "bg-gray-700 text-gray-200 border-gray-600 focus:ring-blue-400"
+              : "bg-gray-50 text-gray-700 border-gray-300 focus:ring-blue-300"
+          }`}
         />
 
         <input
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          className="w-full mb-3 text-sm text-gray-600"
+          className={`w-full mb-3 text-sm ${
+            dark ? "text-gray-200" : "text-gray-600"
+          }`}
         />
 
         {preview && (
           <div className="mb-3">
-            <img src={preview} alt="Preview" className="max-h-48 rounded-lg border" />
+            <img
+              src={preview}
+              alt="Preview"
+              className={`max-h-48 rounded-lg border ${
+                dark ? "border-gray-600" : "border-gray-300"
+              }`}
+            />
           </div>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition disabled:opacity-50"
+          className={`w-full py-2 rounded-lg text-white transition-colors disabled:opacity-50 ${
+            dark ? "bg-blue-500 hover:bg-blue-600" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {loading ? "Publishing..." : "Publish"}
         </button>
