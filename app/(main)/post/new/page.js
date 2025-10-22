@@ -29,7 +29,7 @@ function NewPostContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return; 
+    if (!user) return;
     setLoading(true);
 
     try {
@@ -53,7 +53,6 @@ function NewPostContent() {
       setTimeout(() => {
         router.push("/");
       }, 1500);
-
     } catch (err) {
       console.error("Error creating post:", err);
       alert("Failed to publish post. Try again!");
@@ -106,11 +105,7 @@ function NewPostContent() {
 
         {preview && (
           <div className="mb-3">
-            <img
-              src={preview}
-              alt="Preview"
-              className="max-h-48 rounded-lg border"
-            />
+            <img src={preview} alt="Preview" className="max-h-48 rounded-lg border" />
           </div>
         )}
 

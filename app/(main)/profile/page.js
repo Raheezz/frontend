@@ -20,6 +20,7 @@ function ProfileContent() {
         const data = await getMe();
         setUser(data);
         setBio(data.bio || "");
+
         // Fetch posts by this user
         const allPosts = await getPosts();
         const userPosts = (allPosts.results || allPosts).filter(
@@ -155,7 +156,7 @@ function ProfileContent() {
                   <p className="text-sm text-gray-600 line-clamp-2">{post.content}</p>
                   <div className="flex items-center justify-between mt-1 text-xs text-gray-500">
                     <button
-                      type="button" // ✅ safe like button
+                      type="button"
                       onClick={() => handleToggleLike(post.id)}
                       className={`flex items-center gap-1 font-medium ${
                         post.is_liked ? "text-red-600" : "text-gray-500"
