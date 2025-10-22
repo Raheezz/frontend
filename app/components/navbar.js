@@ -35,6 +35,7 @@ export default function Navbar() {
       localStorage.setItem("theme", "dark");
     }
     setDark(!dark);
+    setMenuOpen(false);
   };
 
   const handleNavClick = () => setMenuOpen(false);
