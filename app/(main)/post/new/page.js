@@ -13,6 +13,7 @@ function NewPostContent() {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false); // ✅ success toast
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,7 +29,7 @@ function NewPostContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return; // Safety check
+    if (!user) return; 
     setLoading(true);
 
     try {
@@ -42,13 +43,20 @@ function NewPostContent() {
         data = { ...form };
       }
 
-      // Send post to backend
-      const createdPost = await createPost(data);
+      const response = await createPost(data);
+      console.log("📦 Post created response:", response);
 
-      // Optional: if backend returns full post including author info, you can redirect to its detail page
-      router.push(`/posts/${createdPost.id}`); 
+      // Show success toast
+      setSuccess(true);
+
+      // Wait 1.5s, then redirect to feed
+      setTimeout(() => {
+        router.push("/");
+      }, 1500);
+
     } catch (err) {
       console.error("Error creating post:", err);
+      alert("Failed to publish post. Try again!");
     } finally {
       setLoading(false);
     }
@@ -66,7 +74,7 @@ function NewPostContent() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white border border-blue-100 rounded-2xl shadow-md p-6 w-full max-w-md"
+        className="bg-white border border-blue-100 rounded-2xl shadow-md p-6 w-full max-w-md relative"
       >
         <h1 className="text-2xl font-bold mb-4 text-blue-700">✍️ Create New Post</h1>
 
@@ -113,6 +121,13 @@ function NewPostContent() {
         >
           {loading ? "Publishing..." : "Publish"}
         </button>
+
+        {/* ✅ Success toast */}
+        {success && (
+          <div className="absolute top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md animate-fadeIn">
+            ✅ Post published successfully!
+          </div>
+        )}
       </form>
     </div>
   );

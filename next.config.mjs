@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: "/",          // when user goes to homepage
-        destination: "/feed", // 👈 send them to feed instead
+        destination: "/feed", //  send them to feed instead
         permanent: true,      // use false if you may change later
       },
     ];
