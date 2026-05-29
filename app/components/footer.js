@@ -32,7 +32,7 @@ export default function Footer() {
         <span className="font-semibold text-blue-600 dark:text-blue-400">
           Jamia Project Magazine
         </span>{" "}
-        · Built by Campus Creatives
+        · Built by Raheez
       </p>
 
       {/* Dark Mode Toggle */}
